@@ -35,7 +35,7 @@ a:hover {
 body {
     margin: 0;
     display: flex;
-    place-items: center;
+    place-items: top;
     min-width: 320px;
     min-height: 100vh;
 }
@@ -67,13 +67,14 @@ button:focus-visible {
 }
 
 .card {
-    padding: 2em;
+    padding: 1em;
 }
 
 #app {
-    max-width: 1280px;
+    max-width: 100%;
+    width: 100%;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1rem;
     text-align: center;
 }
 
@@ -126,7 +127,7 @@ button {
 /* Style the table */
 
 table {
-    width: 80%;
+    width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
@@ -140,4 +141,30 @@ td {
 th {
     background-color: #f0f0f0;
     text-align: left;
+}
+
+
+/* Arrow icon styles */
+
+.sort-icon {
+    margin-left: 5px;
+}
+
+.sort-icon::before {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    vertical-align: middle;
+    content: "";
+}
+
+.sort-icon.asc::before {
+    border-width: 0 4px 5px 4px;
+    border-color: transparent transparent #000000 transparent;
+}
+
+.sort-icon.desc::before {
+    border-width: 5px 4px 0 4px;
+    border-color: #000000 transparent transparent transparent;
 }

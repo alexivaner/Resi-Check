@@ -2,7 +2,13 @@
   <div class="modal-background" v-if="showModal">
     <div class="modal-content">
       <p>{{ modalMessage }}</p>
-      <button @click="closeModal">OK</button>
+      <div v-if="modalType == 'confirmation'" class="modal-buttons">
+        <button @click="closeModal">Cancel</button>
+        <button @click="confirmModal">Confirm</button>
+      </div>
+      <div v-if="modalType == 'warning'" class="modal-buttons">
+        <button @click="closeModal">OK</button>
+      </div>
     </div>
   </div>
 </template>
@@ -12,10 +18,15 @@ export default {
   props: {
     showModal: Boolean,
     modalMessage: String,
+    modalType: String, //[confirmation, warning]
   },
   methods: {
     closeModal() {
       this.$emit("close");
+    },
+    confirmModal() {
+      this.$emit("confirm");
+      this.closeModal();
     },
   },
 };
@@ -42,7 +53,12 @@ export default {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
 button {
-  margin-top: 10px;
+  margin-left: 10px;
 }
 </style>

@@ -1,68 +1,162 @@
 <template>
   <div>
-    <div>
-      <input
-        v-model="textInput"
-        type="text"
-        placeholder="Masukkan resi"
-        @focus="autoFillDateTime"
-        @keyup.enter="addToTable"
-      />
-      <input v-model="dateInput" type="date" />
-      <input
-        v-model="hourInput"
-        type="number"
-        placeholder="Hour (0-23)"
-        min="0"
-        max="23"
-      />
-      <input
-        v-model="minuteInput"
-        type="number"
-        placeholder="Minute (0-59)"
-        min="0"
-        max="59"
-      />
-      <button @click="addToTable">Add to Table</button>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Resi</th>
-          <th>Tanggal</th>
-          <th>Waktu</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(entry, textInput) in tableData" :key="textInput">
-          <td>{{ textInput }}</td>
-          <td>{{ entry.date }}</td>
-          <td>{{ entry.time }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <PopupModal
-      v-if="showPopup"
-      :showModal="showPopup"
-      :modalMessage="popupMessage"
-      @close="hidePopup"
+    <input
+      ref="resiInputRef"
+      v-model="resiInput"
+      type="text"
+      placeholder="Masukkan resi"
+      @focus="autoFillDateTime"
+      @keyup.enter="moveFocusToNextInput"
     />
-    <PopupModal
-      v-if="showDuplicatePopup"
-      :showModal="showDuplicatePopup"
-      :modalMessage="duplicatePopupMessage"
-      @close="hideDuplicatePopup"
+    <input
+      ref="hargaShopeeRef"
+      v-model="hargaShopee"
+      type="number"
+      placeholder="Masukkan harga shopee"
+      @focus="autoFillDateTime"
+      @keyup.enter="moveFocusToNextInput"
     />
+    <input
+      ref="hargaTokoRef"
+      v-model="hargaToko"
+      type="number"
+      placeholder="Masukkan harga toko"
+      @focus="autoFillDateTime"
+      @keyup.enter="addToTable"
+    />
+    <input v-model="dateInput" type="date" />
+    <input v-model="hourInput" type="number" placeholder="Hour (0-23)" min="0" max="23" />
+    <input
+      v-model="minuteInput"
+      type="number"
+      placeholder="Minute (0-59)"
+      min="0"
+      max="59"
+    />
+    <button @click="addToTable">Add to Table</button>
   </div>
+  <table>
+    <thead>
+      <tr>
+        <th @click="sortTable('resiInput')">
+          Resi
+          <span
+            class="sort-icon"
+            :class="{
+              asc: sortBy === 'resiInput' && sortDirection === 1,
+              desc: sortBy === 'resiInput' && sortDirection === -1,
+            }"
+          ></span>
+        </th>
+        <th @click="sortTable('date')">
+          Tanggal
+          <span
+            class="sort-icon"
+            :class="{
+              asc: sortBy === 'date' && sortDirection === 1,
+              desc: sortBy === 'date' && sortDirection === -1,
+            }"
+          ></span>
+        </th>
+        <th @click="sortTable('time')">
+          Waktu
+          <span
+            class="sort-icon"
+            :class="{
+              asc: sortBy === 'time' && sortDirection === 1,
+              desc: sortBy === 'time' && sortDirection === -1,
+            }"
+          ></span>
+        </th>
+        <th @click="sortTable('provider')">
+          Depo Pengiriman
+          <span
+            class="sort-icon"
+            :class="{
+              asc: sortBy === 'provider' && sortDirection === 1,
+              desc: sortBy === 'provider' && sortDirection === -1,
+            }"
+          ></span>
+        </th>
+        <th @click="sortTable('hargaShopee')">
+          Harga Shopee
+          <span
+            class="sort-icon"
+            :class="{
+              asc: sortBy === 'hargaShopee' && sortDirection === 1,
+              desc: sortBy === 'hargaShopee' && sortDirection === -1,
+            }"
+          ></span>
+        </th>
+        <th @click="sortTable('hargaToko')">
+          Harga Toko
+          <span
+            class="sort-icon"
+            :class="{
+              asc: sortBy === 'hargaToko' && sortDirection === 1,
+              desc: sortBy === 'hargaToko' && sortDirection === -1,
+            }"
+          ></span>
+        </th>
+        <th @click="sortTable('laba')">
+          Laba
+          <span
+            class="sort-icon"
+            :class="{
+              asc: sortBy === 'laba' && sortDirection === 1,
+              desc: sortBy === 'laba' && sortDirection === -1,
+            }"
+          ></span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(entry, resiInput) in sortedTableData" :key="resiInput">
+        <td>{{ resiInput }}</td>
+        <td>{{ entry.date }}</td>
+        <td>{{ entry.time }}</td>
+        <td>{{ entry.provider }}</td>
+        <td>{{ entry.hargaShopee }}</td>
+        <td>{{ entry.hargaToko }}</td>
+        <td>{{ entry.laba }}</td>
+        <!-- Display the Provider based on the provided information -->
+      </tr>
+    </tbody>
+  </table>
+  <PopupModal
+    v-if="showPopup"
+    :showModal="showPopup"
+    :modalType="modalType[1]"
+    :modalMessage="popupMessage"
+    @close="hidePopup"
+  />
+  <PopupModal
+    v-if="showDuplicatePopup"
+    :showModal="showDuplicatePopup"
+    :modalMessage="duplicatePopupMessage"
+    :modalType="modalType[1]"
+    @close="hideDuplicatePopup"
+  />
+  <PopupModal
+    v-if="showConfirmationPopup"
+    :showModal="showConfirmationPopup"
+    :modalMessage="confirmationPopupMessage"
+    :modalType="modalType[0]"
+    @confirm="confirmAddToTable"
+    @close="cancelAddToTable"
+  />
 </template>
 
 <script>
 import PopupModal from "./PopupModal.vue";
+import { providerRegexes } from "../../helper/providers"; // Import the providerRegexes from the external file
 
 export default {
   data() {
     return {
-      textInput: "",
+      resiInput: "",
+      hargaShopee: null,
+      hargaToko: null,
       dateInput: "",
       hourInput: "",
       minuteInput: "",
@@ -70,30 +164,48 @@ export default {
       popupMessage: "",
       showDuplicatePopup: false,
       duplicatePopupMessage: "",
-
+      showConfirmationPopup: false,
+      confirmationPopupMessage: "",
+      providerRegexes: providerRegexes, // Assign the imported dictionary to the data property
       tableData: {}, // Change to an object
+      modalType: ["confirmation", "warning"],
+      sortBy: null,
+      sortDirection: 1,
     };
   },
   methods: {
-    addToTable() {
+    addToTable(checkProvider = true) {
       if (
-        this.textInput &&
+        this.resiInput &&
         this.dateInput &&
         this.isHourValid(this.hourInput) &&
         this.isMinuteValid(this.minuteInput)
       ) {
         const formattedTime = this.formatTime(this.hourInput, this.minuteInput);
-        const entryKey = this.textInput.toLowerCase().trim();
+        const entryKey = this.resiInput.toUpperCase().trim();
         if (this.tableData.hasOwnProperty(entryKey)) {
           this.showDuplicatePopup = true;
-          this.duplicatePopupMessage = `Resi "${this.textInput}" sudah di-input tanggal ${this.tableData[entryKey].date} pukul ${this.tableData[entryKey].time}.`;
+          this.duplicatePopupMessage = `Resi "${this.resiInput}" sudah di-input tanggal ${this.tableData[entryKey].date} pukul ${this.tableData[entryKey].time}.`;
         } else {
-          this.tableData[entryKey] = {
-            date: this.dateInput,
-            time: formattedTime,
-          };
-          this.textInput = "";
-          this.autoFillDateTime();
+          const provider = this.getProviderFromText(this.resiInput);
+          if (provider === "Unknown Provider" && checkProvider) {
+            this.showConfirmationPopup = true;
+            this.confirmationPopupMessage = `Provider pengiriman "${this.resiInput}" tidak diketahui. Masih ingin menambah data?`;
+          } else {
+            this.tableData[entryKey] = {
+              date: this.dateInput,
+              time: formattedTime,
+              provider: this.getProviderFromText(this.resiInput), // Get the provider from the text input
+              hargaShopee: this.hargaShopee,
+              hargaToko: this.hargaToko,
+              laba: this.hargaShopee - this.hargaToko,
+            };
+            this.resiInput = "";
+            this.resiInput = "";
+            this.hargaShopee = null;
+            this.hargaToko = null;
+            this.autoFillDateTime();
+          }
         }
       } else {
         this.showPopup = true;
@@ -122,16 +234,84 @@ export default {
       this.showDuplicatePopup = false;
     },
 
+    // Confirm adding to the table if the user confirms in the popup
+    confirmAddToTable() {
+      this.showConfirmationPopup = false;
+      this.addToTable(false);
+    },
+
+    // Cancel adding to the table if the user cancels in the popup
+    cancelAddToTable() {
+      this.showConfirmationPopup = false;
+    },
+
     autoFillDateTime() {
       const now = new Date();
       this.dateInput = now.toISOString().slice(0, 10);
       this.hourInput = String(now.getHours()).padStart(2, "0");
       this.minuteInput = String(now.getMinutes()).padStart(2, "0");
     },
+
+    // Helper method to extract provider based on the given text input
+    getProviderFromText(resiInput) {
+      for (const [provider, regex] of Object.entries(this.providerRegexes)) {
+        if (regex.test(resiInput)) {
+          return provider;
+        }
+      }
+      return "Unknown Provider";
+    },
+
+    moveFocusToNextInput(event) {
+      const inputs = [
+        this.$refs.resiInputRef,
+        this.$refs.hargaShopeeRef,
+        this.$refs.hargaTokoRef,
+      ];
+      const currentInputIndex = inputs.findIndex((input) => input === event.target);
+      if (currentInputIndex >= 0 && currentInputIndex < inputs.length - 1) {
+        inputs[currentInputIndex + 1].focus();
+      } else {
+        this.addToTable();
+      }
+    },
+
+    sortTable(column) {
+      if (this.sortBy === column) {
+        this.sortDirection *= -1;
+      } else {
+        this.sortBy = column;
+        this.sortDirection = 1;
+      }
+    },
   },
 
   components: {
     PopupModal,
+  },
+
+  computed: {
+    sortedTableData() {
+      if (!this.sortBy) return this.tableData;
+
+      return Object.entries(this.tableData)
+        .sort((a, b) => {
+          if (this.sortBy === "resiInput") {
+            const aValue = a[0].toUpperCase().trim();
+            const bValue = b[0].toUpperCase().trim();
+            return aValue.localeCompare(bValue) * this.sortDirection;
+          } else {
+            const aValue = a[1][this.sortBy];
+            const bValue = b[1][this.sortBy];
+            if (aValue === bValue) return 0;
+            return aValue > bValue ? this.sortDirection : -this.sortDirection;
+          }
+        })
+        .reduce((obj, [key, value]) => {
+          obj[key] = value;
+          return obj;
+        }, {});
+    },
   },
 };
 </script>
