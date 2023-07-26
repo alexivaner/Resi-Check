@@ -1,6 +1,9 @@
 <template>
   <div class="modal-background" @click="closeModal">
     <div class="modal-content">
+      <div class="close-icon" @click="closeModal">
+        <i class="fa fa-times"></i>
+      </div>
       <h2>About</h2>
       <p>Program ini dibuat simpel saja untuk memanajemen resi pengiriman Shopee.</p>
       <p>Created by Ivan Surya Hutomo</p>
@@ -26,15 +29,5 @@ export default {
 </script>
 
 <style>
-/* Add styles for the close icon */
-.modal-content {
-  position: relative;
-}
-.close-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 24px;
-  cursor: pointer;
-}
+
 </style>

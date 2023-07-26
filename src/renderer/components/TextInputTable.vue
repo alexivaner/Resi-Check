@@ -2,10 +2,14 @@
   <div>
     <!-- Add a button to toggle between dark and light mode -->
     <div class="switch-scheme-button">
+      <button @click="toggleSummaryModal">
+        <span> <i class="fa fa-bar-chart"></i> Summary</span>
+      </button>
       <button @click="toggleColorScheme">
         <span v-if="isDarkMode"> <i class="fas fa-sun"></i> Light Mode </span>
         <span v-else> <i class="fas fa-moon"></i> Dark Mode </span>
       </button>
+
       <button @click="setSystemMode">Match System</button>
       <button @click="toggleAboutModal">
         <span> <i class="fas fa-info-circle"></i> About</span>
@@ -47,94 +51,97 @@
     />
     <button @click="addToTable">Masukkan Data</button>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th @click="sortTable('resiInput')">
-          Resi
-          <span
-            class="sort-icon"
-            :class="{
-              asc: sortBy === 'resiInput' && sortDirection === 1,
-              desc: sortBy === 'resiInput' && sortDirection === -1,
-            }"
-          ></span>
-        </th>
-        <th @click="sortTable('date')">
-          Tanggal
-          <span
-            class="sort-icon"
-            :class="{
-              asc: sortBy === 'date' && sortDirection === 1,
-              desc: sortBy === 'date' && sortDirection === -1,
-            }"
-          ></span>
-        </th>
-        <th @click="sortTable('time')">
-          Waktu
-          <span
-            class="sort-icon"
-            :class="{
-              asc: sortBy === 'time' && sortDirection === 1,
-              desc: sortBy === 'time' && sortDirection === -1,
-            }"
-          ></span>
-        </th>
-        <th @click="sortTable('provider')">
-          Depo Pengiriman
-          <span
-            class="sort-icon"
-            :class="{
-              asc: sortBy === 'provider' && sortDirection === 1,
-              desc: sortBy === 'provider' && sortDirection === -1,
-            }"
-          ></span>
-        </th>
-        <th @click="sortTable('hargaShopee')">
-          Harga Shopee
-          <span
-            class="sort-icon"
-            :class="{
-              asc: sortBy === 'hargaShopee' && sortDirection === 1,
-              desc: sortBy === 'hargaShopee' && sortDirection === -1,
-            }"
-          ></span>
-        </th>
-        <th @click="sortTable('hargaToko')">
-          Harga Toko
-          <span
-            class="sort-icon"
-            :class="{
-              asc: sortBy === 'hargaToko' && sortDirection === 1,
-              desc: sortBy === 'hargaToko' && sortDirection === -1,
-            }"
-          ></span>
-        </th>
-        <th @click="sortTable('laba')">
-          Laba
-          <span
-            class="sort-icon"
-            :class="{
-              asc: sortBy === 'laba' && sortDirection === 1,
-              desc: sortBy === 'laba' && sortDirection === -1,
-            }"
-          ></span>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(entry, resiInput) in sortedTableData" :key="resiInput">
-        <td>{{ resiInput }}</td>
-        <td>{{ entry.date }}</td>
-        <td>{{ entry.time }}</td>
-        <td>{{ entry.provider }}</td>
-        <td>{{ entry.hargaShopee }}</td>
-        <td>{{ entry.hargaToko }}</td>
-        <td>{{ entry.laba }}</td>
-        <!-- Display the Provider based on the provided information -->
-      </tr>
-    </tbody>
-  </table>
+  <div class="tableFixHead">
+    <table>
+      <thead>
+        <tr>
+          <th @click="sortTable('resiInput')">
+            Resi
+            <span
+              class="sort-icon"
+              :class="{
+                asc: sortBy === 'resiInput' && sortDirection === 1,
+                desc: sortBy === 'resiInput' && sortDirection === -1,
+              }"
+            ></span>
+          </th>
+          <th @click="sortTable('date')">
+            Tanggal
+            <span
+              class="sort-icon"
+              :class="{
+                asc: sortBy === 'date' && sortDirection === 1,
+                desc: sortBy === 'date' && sortDirection === -1,
+              }"
+            ></span>
+          </th>
+          <th @click="sortTable('time')">
+            Waktu
+            <span
+              class="sort-icon"
+              :class="{
+                asc: sortBy === 'time' && sortDirection === 1,
+                desc: sortBy === 'time' && sortDirection === -1,
+              }"
+            ></span>
+          </th>
+          <th @click="sortTable('provider')">
+            Depo Pengiriman
+            <span
+              class="sort-icon"
+              :class="{
+                asc: sortBy === 'provider' && sortDirection === 1,
+                desc: sortBy === 'provider' && sortDirection === -1,
+              }"
+            ></span>
+          </th>
+          <th @click="sortTable('hargaShopee')">
+            Harga Shopee
+            <span
+              class="sort-icon"
+              :class="{
+                asc: sortBy === 'hargaShopee' && sortDirection === 1,
+                desc: sortBy === 'hargaShopee' && sortDirection === -1,
+              }"
+            ></span>
+          </th>
+          <th @click="sortTable('hargaToko')">
+            Harga Toko
+            <span
+              class="sort-icon"
+              :class="{
+                asc: sortBy === 'hargaToko' && sortDirection === 1,
+                desc: sortBy === 'hargaToko' && sortDirection === -1,
+              }"
+            ></span>
+          </th>
+          <th @click="sortTable('laba')">
+            Laba
+            <span
+              class="sort-icon"
+              :class="{
+                asc: sortBy === 'laba' && sortDirection === 1,
+                desc: sortBy === 'laba' && sortDirection === -1,
+              }"
+            ></span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(entry, resiInput) in sortedTableData" :key="resiInput">
+          <td>{{ resiInput }}</td>
+          <td>{{ entry.date }}</td>
+          <td>{{ entry.time }}</td>
+          <td>{{ entry.provider }}</td>
+          <td>{{ entry.hargaShopee }}</td>
+          <td>{{ entry.hargaToko }}</td>
+          <td>{{ entry.laba }}</td>
+          <!-- Display the Provider based on the provided information -->
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <PopupModal
     v-if="showPopup"
     :showModal="showPopup"
@@ -159,18 +166,27 @@
   />
   <!-- Display the AboutModal component when the about modal should be visible -->
   <AboutModal v-if="showAboutModal" @close="closeAboutModal" />
+  <Summary
+    v-if="showSummaryModal"
+    :modifiedTableData="tableData"
+    :isDarkMode="isDarkMode"
+    @close="closeSummaryModal"
+  />
+  <!-- Add a router link to navigate to the Summary page -->
 </template>
 
 <script>
 import PopupModal from "./PopupModal.vue";
 import { providerRegexes } from "../../helper/providers"; // Import the providerRegexes from the external file
 import AboutModal from "./AboutModal.vue";
+import Summary from "./Summary.vue";
 
 export default {
   mounted() {
     //Signal main process if it already mounted
     window.ipcRenderer.send("ready");
     window.ipcRenderer.receive("loadFromJson", (data) => {
+      console.log("Load from JSON",data);
       this.tableData = JSON.parse(data);
     });
   },
@@ -197,6 +213,7 @@ export default {
       appPath: "",
       isDarkMode: false, // Add a new data property to track the color scheme
       showAboutModal: false, // New data property to control the visibility of the about modal
+      showSummaryModal: false,
     };
   },
   methods: {
@@ -222,8 +239,8 @@ export default {
               date: this.dateInput,
               time: formattedTime,
               provider: this.getProviderFromText(this.resiInput), // Get the provider from the text input
-              hargaShopee: this.hargaShopee,
-              hargaToko: this.hargaToko,
+              hargaShopee: this.hargaShopee ? this.hargaShopee : 0,
+              hargaToko: this.hargaToko ? this.hargaToko : 0,
               laba: this.hargaShopee - this.hargaToko,
             };
 
@@ -339,11 +356,22 @@ export default {
     closeAboutModal() {
       this.showAboutModal = false;
     },
+
+    // Method to show the about modal
+    async toggleSummaryModal() {
+      this.showSummaryModal = true;
+    },
+
+    // Method to close the about modal
+    closeSummaryModal() {
+      this.showSummaryModal = false;
+    },
   },
 
   components: {
     PopupModal,
     AboutModal,
+    Summary,
   },
 
   computed: {

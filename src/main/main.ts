@@ -85,7 +85,8 @@ ipcMain.on("saveToJson", (event, data) => {
 
 
 function saveTableDataToJSON(tableData) {
-  const filePath = path.join(__dirname, "tableData.json");
+  const filePath = path.join(app.getPath('home')
+    , "tableData.json");
   try {
     let existingData = {};
     try {
@@ -108,7 +109,8 @@ function saveTableDataToJSON(tableData) {
 }
 
 function loadTableDataFromJSON() {
-  const filePath = path.join(__dirname, "tableData.json");
+  const filePath = path.join(app.getPath('home')
+    , "tableData.json");
   try {
     const data = fs.readFileSync(filePath, "utf8");
     return data;

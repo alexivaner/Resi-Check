@@ -6,7 +6,7 @@ window.electronAPI.sendMessage("Hello from App.vue!");
 
 <template>
   <div>
-    <h1>SB Resi Checker</h1>
+    <h1>Resi Checker</h1>
   </div>
   <TextInputTable />
 </template>
