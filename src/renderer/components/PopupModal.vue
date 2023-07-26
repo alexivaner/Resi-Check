@@ -33,21 +33,19 @@ export default {
 </script>
 
 <style>
-/* Style the popup modal */
+/* Common styles for both dark and light modes */
 .modal-background {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .modal-content {
-  background-color: #fff;
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -60,5 +58,40 @@ export default {
 
 button {
   margin-left: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Light mode styles */
+@media (prefers-color-scheme: light) {
+  .modal-background {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+  .modal-content {
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
+  button {
+    background-color: #007bff;
+    color: #fff;
+  }
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .modal-background {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  .modal-content {
+    background-color: #1a1a1a;
+    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.3);
+    color: #fff;
+  }
+  button {
+    background-color: #535bf2;
+    color: #fff;
+  }
 }
 </style>

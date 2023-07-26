@@ -1,5 +1,17 @@
 <template>
   <div>
+    <!-- Add a button to toggle between dark and light mode -->
+    <div class="switch-scheme-button">
+      <button @click="toggleColorScheme">
+        <span v-if="isDarkMode"> <i class="fas fa-sun"></i> Light Mode </span>
+        <span v-else> <i class="fas fa-moon"></i> Dark Mode </span>
+      </button>
+      <button @click="setSystemMode">Match System</button>
+      <button @click="toggleAboutModal">
+        <span> <i class="fas fa-info-circle"></i> About</span>
+      </button>
+    </div>
+
     <input
       ref="resiInputRef"
       v-model="resiInput"
@@ -33,7 +45,7 @@
       min="0"
       max="59"
     />
-    <button @click="addToTable">Add to Table</button>
+    <button @click="addToTable">Masukkan Data</button>
   </div>
   <table>
     <thead>
@@ -145,13 +157,23 @@
     @confirm="confirmAddToTable"
     @close="cancelAddToTable"
   />
+  <!-- Display the AboutModal component when the about modal should be visible -->
+  <AboutModal v-if="showAboutModal" @close="closeAboutModal" />
 </template>
 
 <script>
 import PopupModal from "./PopupModal.vue";
 import { providerRegexes } from "../../helper/providers"; // Import the providerRegexes from the external file
+import AboutModal from "./AboutModal.vue";
 
 export default {
+  mounted() {
+    //Signal main process if it already mounted
+    window.ipcRenderer.send("ready");
+    window.ipcRenderer.receive("loadFromJson", (data) => {
+      this.tableData = JSON.parse(data);
+    });
+  },
   data() {
     return {
       resiInput: "",
@@ -168,9 +190,13 @@ export default {
       confirmationPopupMessage: "",
       providerRegexes: providerRegexes, // Assign the imported dictionary to the data property
       tableData: {}, // Change to an object
+      newlyAddedData: {}, //newly added data for add to json file
       modalType: ["confirmation", "warning"],
       sortBy: null,
       sortDirection: 1,
+      appPath: "",
+      isDarkMode: false, // Add a new data property to track the color scheme
+      showAboutModal: false, // New data property to control the visibility of the about modal
     };
   },
   methods: {
@@ -200,6 +226,13 @@ export default {
               hargaToko: this.hargaToko,
               laba: this.hargaShopee - this.hargaToko,
             };
+
+            this.newlyAddedData[entryKey] = this.tableData[entryKey];
+            window.ipcRenderer.send(
+              "saveToJson",
+              JSON.stringify(this.newlyAddedData, null, 2)
+            );
+
             this.resiInput = "";
             this.resiInput = "";
             this.hargaShopee = null;
@@ -209,7 +242,7 @@ export default {
         }
       } else {
         this.showPopup = true;
-        this.popupMessage = "Hayo invalid. Pastiin jamnya bener deh";
+        this.popupMessage = "Hayo check lagi datanya!";
       }
     },
     isHourValid(hour) {
@@ -284,10 +317,33 @@ export default {
         this.sortDirection = 1;
       }
     },
+    // Method to toggle between dark and light mode
+    async toggleColorScheme() {
+      this.isDarkMode = await window.darkMode.toggle();
+
+      // Update the class on the root element based on the color scheme
+      document.documentElement.classList.toggle("dark-mode", this.isDarkMode);
+    },
+
+    // Method to set the color scheme to match the system
+    async setSystemMode() {
+      this.isDarkMode = await window.darkMode.system();
+    },
+
+    // Method to show the about modal
+    async toggleAboutModal() {
+      this.showAboutModal = true;
+    },
+
+    // Method to close the about modal
+    closeAboutModal() {
+      this.showAboutModal = false;
+    },
   },
 
   components: {
     PopupModal,
+    AboutModal,
   },
 
   computed: {
