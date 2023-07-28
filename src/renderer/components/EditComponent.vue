@@ -1,0 +1,154 @@
+<template>
+  <div class="edit-form modal-background" v-if="editMode">
+    <div class="modal-content2">
+      <div class="input-container">
+        <div class="input-child">
+          <label
+            >Nomor Resi
+            <input
+              ref="resiInputRef"
+              v-model="dataEntry.resiInput"
+              type="text"
+              placeholder="Masukkan resi"
+              @keyup.enter="moveFocusToNextInput"
+            />
+          </label>
+        </div>
+        <div class="input-child">
+          <label
+            >Nomor Order
+            <input
+              ref="nomorOrderRef"
+              v-model="dataEntry.nomorOrder"
+              type="text"
+              placeholder="Masukkan nomor order"
+              @input="convertToUppercase"
+              maxlength="6"
+              @keyup.enter="moveFocusToNextInput"
+            />
+          </label>
+        </div>
+        <div class="input-child">
+          <label>
+            Harga Shopee
+            <input
+              ref="hargaShopeeRef"
+              v-model="dataEntry.hargaShopee"
+              type="number"
+              placeholder="Masukkan harga shopee"
+              @keyup.enter="moveFocusToNextInput"
+            />
+          </label>
+        </div>
+        <div class="input-child">
+          <label>
+            Harga Toko
+            <input
+              ref="hargaTokoRef"
+              v-model="dataEntry.hargaToko"
+              type="number"
+              placeholder="Masukkan harga toko"
+              @keyup.enter="moveFocusToNextInput"
+            />
+          </label>
+        </div>
+        <div class="input-child">
+          <label>
+            Tanggal
+            <input
+              ref="dateInputRef"
+              v-model="dataEntry.date"
+              type="date"
+              @keyup.enter="moveFocusToNextInput"
+            />
+          </label>
+        </div>
+        <div class="input-child">
+          <label>
+            Waktu
+            <input
+              ref="timeInputRef"
+              v-model="dataEntry.time"
+              type="time"
+              @keyup.enter="moveFocusToNextInput"
+            />
+          </label>
+        </div>
+        <div class="input-child">
+          <label>
+            Lunas
+            <input type="checkbox" v-model="dataEntry.lunas" class="bigger-checkbox" />
+          </label>
+        </div>
+        <button @click="saveModifiedEntry">Save</button>
+        <button @click="cancelModification">Cancel</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    editMode: Boolean,
+    modifiedEntry: Object,
+  },
+  data() {
+    return {
+      dataEntry: {},
+      oldKey: "",
+    };
+  },
+  mounted() {
+    this.dataEntry = this.modifiedEntry;
+    this.oldKey = this.modifiedEntry.resiInput;
+  },
+  methods: {
+    cancelModification() {
+      this.$emit("close");
+    },
+    convertToUppercase() {
+      this.dataEntry.nomorOrder = this.dataEntry.nomorOrder.toUpperCase();
+    },
+    saveModifiedEntry() {
+      this.$emit("confirm", this.dataEntry, this.oldKey);
+    },
+    autoFillDateTime() {
+      const now = new Date();
+      this.dataEntry.dateInput = now.toISOString().slice(0, 10);
+      this.dataEntry.time =
+        String(now.getHours()).padStart(2, "0") +
+        ":" +
+        String(now.getMinutes()).padStart(2, "0");
+    },
+    moveFocusToNextInput(event) {
+      const inputRef = event.target;
+      const nextInputRef = inputRef.nextElementSibling;
+      if (nextInputRef) {
+        nextInputRef.focus();
+      }
+    },
+  },
+};
+</script>
+
+<style>
+.input-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.input-child {
+  float: left;
+}
+
+.bigger-checkbox {
+  /* Increase the height and width of the checkbox */
+  height: 24px;
+  width: 24px;
+  /* Optional: Add margin or padding to adjust spacing around the checkbox */
+  margin-right: 10px;
+  /* Hide the default checkbox */
+}
+</style>

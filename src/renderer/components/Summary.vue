@@ -16,7 +16,28 @@
           :dark="isDarkMode"
         />
         <br />
-        <canvas ref="chart" width="800" height="400"></canvas>
+        <canvas class="chart" ref="chart" width="900" height="400"></canvas>
+        <div class="sumary-data-container">
+          <div class="total-laba">
+            <span>
+              <h3>Total Laba</h3>
+              <p style="font-size: 25px">{{ totalLaba }}</p></span
+            >
+          </div>
+          <div class="total-laba">
+            <span>
+              <h3>Total Lunas</h3>
+              <p style="font-size: 25px">{{ totalLunas }} Resi</p></span
+            >
+          </div>
+          <div class="total-laba">
+            <span>
+              <h3>Total Belum Lunas</h3>
+              <p style="font-size: 25px">{{ totalBelumLunas }} Resi</p></span
+            >
+          </div>
+        </div>
+
         <!-- Increased width and height -->
       </div>
     </div>
@@ -110,22 +131,62 @@ export default {
 
       return counts;
     },
+
+    totalLaba() {
+      let total = 0;
+      for (const key in this.filteredData) {
+        total += this.filteredData[key].laba;
+      }
+      return total.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+    },
+
+    totalLunas() {
+      let total = 0;
+      for (const key in this.filteredData) {
+        if (this.filteredData[key].lunas) {
+          total += 1;
+        }
+      }
+      return total;
+    },
+
+    totalBelumLunas() {
+      let total = 0;
+      for (const key in this.filteredData) {
+        if (!this.filteredData[key].lunas) {
+          total += 1;
+        }
+      }
+      return total;
+    },
   },
   methods: {
     handleDate() {
       console.log("Date in summary", this.date);
 
       // Get the start and end dates from the selected date range
-      const startDate = new Date(this.date[0]);
-      const endDate = new Date(this.date[1]);
-      startDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0
-      endDate.setHours(23, 59, 59, 999); // Set hours, minutes, seconds, and milliseconds to end of day
+      let startDate = null;
+
+      if (this.date[0]) {
+        startDate = new Date(this.date[0]);
+        startDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0
+      }
+
+      let endDate = null;
+      if (this.date[1]) {
+        endDate = new Date(this.date[1]);
+        endDate.setHours(23, 59, 59, 999); // Set hours, minutes, seconds, and milliseconds to end of day
+      }
 
       // Filter the data based on the selected date range
       this.filteredData = {};
       for (const key in this.modifiedTableData) {
         const dataDate = new Date(this.modifiedTableData[key].date);
         dataDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0
+        if (endDate == null) {
+          endDate = startDate;
+        }
+
         if (dataDate >= startDate && dataDate <= endDate) {
           this.filteredData[key] = this.modifiedTableData[key];
         }
@@ -175,13 +236,18 @@ export default {
             x: {
               // Customize the font size for x-axis labels
               ticks: {
-                fontSize: 30, // Set the desired font size here
+                font: {
+                  size: 18,
+                },
               },
             },
           },
+          layout: {
+            padding: 30,
+          },
           plugins: {
             legend: {
-              display: true, // Hide the legend
+              display: false, // Hide the legend
             },
             datalabels: {
               anchor: "end",
@@ -233,5 +299,12 @@ export default {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sumary-data-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: left;
+  margin: 50px;
 }
 </style>

@@ -7,8 +7,8 @@ const path = require("path");
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 720,
+    width: 1366,
+    height: 768,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -83,6 +83,12 @@ ipcMain.on("saveToJson", (event, data) => {
   saveTableDataToJSON(data)
 });
 
+// IPC event handler for deleteToJson
+ipcMain.on("deleteToJson", (event, entryKey) => {
+  deleteEntryFromJSON(entryKey);
+});
+
+
 
 function saveTableDataToJSON(tableData) {
   const filePath = path.join(app.getPath('home')
@@ -105,6 +111,34 @@ function saveTableDataToJSON(tableData) {
     console.log("Newly added data saved to JSON file.");
   } catch (error) {
     console.error("Error saving table data to JSON file:", error);
+  }
+}
+
+// Function to delete the entry from the JSON file
+function deleteEntryFromJSON(entryKey) {
+  const filePath = path.join(app.getPath('home'), "tableData.json");
+  try {
+    let existingData = {};
+    try {
+      const data = fs.readFileSync(filePath, "utf8");
+      existingData = JSON.parse(data);
+    } catch (error) {
+      console.error("Error reading table data from JSON file:", error);
+    }
+
+    console.log("entry key is", entryKey);
+    console.log("existing data  is", existingData);
+
+    if (existingData.hasOwnProperty(entryKey)) {
+      delete existingData[entryKey]; // Remove the entry with the given entryKey
+
+      fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+      console.log("Entry deleted from JSON file.");
+    } else {
+      console.error("Entry not found in JSON file.");
+    }
+  } catch (error) {
+    console.error("Error deleting entry from JSON file:", error);
   }
 }
 
