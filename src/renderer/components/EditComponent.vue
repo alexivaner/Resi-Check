@@ -80,8 +80,10 @@
             <input type="checkbox" v-model="dataEntry.lunas" class="bigger-checkbox" />
           </label>
         </div>
-        <button @click="saveModifiedEntry">Save</button>
-        <button @click="cancelModification">Cancel</button>
+        <div class="input-child">
+          <button @click="saveModifiedEntry">Save</button>
+          <button @click="cancelModification">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
@@ -134,13 +136,14 @@ export default {
 
 <style>
 .input-container {
-  display: flex;
+  display: block;
   flex-direction: row;
   justify-content: space-between;
 }
 
 .input-child {
-  float: left;
+    margin: 20px;
+    float: left;
 }
 
 .bigger-checkbox {
@@ -150,5 +153,15 @@ export default {
   /* Optional: Add margin or padding to adjust spacing around the checkbox */
   margin-right: 10px;
   /* Hide the default checkbox */
+}
+
+.button-container {
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Additional styles to align buttons horizontally */
+.button-container button {
+  margin: 0 10px;
 }
 </style>

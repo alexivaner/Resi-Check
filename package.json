@@ -1,6 +1,6 @@
 {
     "name": "Sumber-Berkat-Resi-Checker",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "description": "A minimal resi checker",
     "main": "build/main/main.js",
     "scripts": {

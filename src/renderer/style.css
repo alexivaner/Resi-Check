@@ -292,9 +292,9 @@ th {
 .modal-content2 {
     padding: 20px;
     border-radius: 4px;
-    width: 80vw;
-    height: 10vh;
-    display: flex;
+    width: 80%;
+    height: auto;
+    display: block;
     justify-content: center;
     align-items: center;
 }
