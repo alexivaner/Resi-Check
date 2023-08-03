@@ -1,9 +1,16 @@
 import { app, BrowserWindow, ipcMain, session, nativeTheme } from 'electron';
 import { join } from 'path';
+import {
+  autoUpdater
+} from 'electron-updater'
 
 let mainWindow;
 const fs = require("fs");
 const path = require("path");
+
+
+//Disable auto download of updates
+autoUpdater.autoDownload = false;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -89,6 +96,10 @@ ipcMain.on("deleteToJson", (event, entryKey) => {
   deleteEntryFromJSON(entryKey);
 });
 
+ipcMain.on("checkForUpdate",(event)=>{
+  console.log("checking for update");
+  autoUpdater.checkForUpdatesAndNotify();
+})
 
 
 function saveTableDataToJSON(tableData) {

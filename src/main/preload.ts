@@ -12,7 +12,7 @@ contextBridge.exposeInMainWorld('darkMode', {
 // Expose ipcRenderer to the client
 contextBridge.exposeInMainWorld('ipcRenderer', {
   send: (channel, data) => {
-    let validChannels = ['ready', 'saveToJson', 'deleteToJson'] // <-- Array of all ipcRenderer Channels used in the client
+    let validChannels = ['ready', 'saveToJson', 'deleteToJson', "checkForUpdate"] // <-- Array of all ipcRenderer Channels used in the client
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data)
     }

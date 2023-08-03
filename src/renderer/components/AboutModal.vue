@@ -22,12 +22,10 @@ export default {
     },
     checkForUpdates() {
       // Add logic here to check for updates
-      alert("Checking for updates...");
+      window.ipcRenderer.send("checkForUpdate");
     },
   },
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

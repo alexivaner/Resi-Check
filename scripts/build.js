@@ -3,6 +3,10 @@ const Chalk = require('chalk');
 const FileSystem = require('fs');
 const Vite = require('vite');
 const compileTs = require('./private/tsc');
+const { config } = require('dotenv');
+config();
+
+
 
 function buildRenderer() {
     return Vite.build({
