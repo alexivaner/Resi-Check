@@ -9,6 +9,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1366,
     height: 768,
+    icon: path.join(__dirname, 'renderer/icons/win/icon.ico'), // Update this path
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
       nodeIntegration: false,

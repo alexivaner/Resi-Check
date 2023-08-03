@@ -421,8 +421,14 @@ export default {
 
     // Method to delete an entry from tableData
     deleteEntry(entryKey) {
-      delete this.tableData[entryKey];
-      window.ipcRenderer.send("deleteToJson", entryKey);
+      //TODO: Add confirmation before delete
+      const confirmation = confirm("Are you sure you want to delete this entry?");
+
+      if (confirmation) {
+        // Perform the deletion if the user confirms
+        delete this.tableData[entryKey];
+        window.ipcRenderer.send("deleteToJson", entryKey);
+      }
     },
 
     saveModifiedEntry(modifiedData, oldKey) {
