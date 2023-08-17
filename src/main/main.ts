@@ -88,31 +88,31 @@ ipcMain.on("ready", (event) => {
 
 ipcMain.on('openDialog', () => {
   dialog.showMessageBox(mainWindow, {
-      'type': 'question',
-      'title': 'Confirmation',
-      'message': "Apakah kamu yakin?",
-      'buttons': [
-          'Ya',
-          'Tidak'
-      ]
+    'type': 'question',
+    'title': 'Confirmation',
+    'message': "Apakah kamu yakin?",
+    'buttons': [
+      'Tidak',
+      'Ya'
+    ]
   })
-      // Dialog returns a promise so let's handle it correctly
-      .then((result) => {
-          // Bail if the user pressed "No" or escaped (ESC) from the dialog box
-          if (result.response !== 0) { return; }
+    // Dialog returns a promise so let's handle it correctly
+    .then((result) => {
+      console.log("Result response %o", result.response);
 
-          // Testing.
-          if (result.response === 0) {
-              console.log('The "Yes" button was pressed (main process)');
-          }
+      // Bail if the user pressed "No" or escaped (ESC) from the dialog box
+      if (result.response !== 1) { return; }
 
-          // Reply to the render process
-          mainWindow.webContents.send('dialogResponse', result.response);
-      })
+      // Testing.
+      if (result.response === 1) {
+        console.log('The "Yes" button was pressed (main process)');
+        mainWindow.webContents.send('dialogResponse', result.response);
+      }
+
+    })
 })
 
 ipcMain.on("saveToJson", (event, data) => {
-  console.log("event in savetojson ", data);
   saveTableDataToJSON(data)
 });
 
@@ -121,7 +121,7 @@ ipcMain.on("deleteToJson", (event, entryKey) => {
   deleteEntryFromJSON(entryKey);
 });
 
-ipcMain.on("checkForUpdate",(event)=>{
+ipcMain.on("checkForUpdate", (event) => {
   console.log("checking for update");
   autoUpdater.checkForUpdatesAndNotify();
 })
@@ -162,9 +162,6 @@ function deleteEntryFromJSON(entryKey) {
     } catch (error) {
       console.error("Error reading table data from JSON file:", error);
     }
-
-    console.log("entry key is", entryKey);
-    console.log("existing data  is", existingData);
 
     if (existingData.hasOwnProperty(entryKey)) {
       delete existingData[entryKey]; // Remove the entry with the given entryKey

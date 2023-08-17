@@ -450,7 +450,7 @@ export default {
         window.ipcRenderer.openDialog("openDialog");
 
         window.ipcRenderer.dialogResponse((event, response) => {
-          if (response === 0) {
+          if (response === 1) {
             // Perform your render action here
             // Perform the deletion if the user confirms
             delete this.tableData[entryKey];
@@ -474,7 +474,7 @@ export default {
 
       // Response from main process
       window.ipcRenderer.dialogResponse((event, response) => {
-        if (response === 0) {
+        if (response === 1) {
           //Delete old data first
           console.log("oldkey is", oldKey);
           delete this.tableData[oldKey];
