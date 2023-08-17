@@ -6,7 +6,7 @@ window.electronAPI.sendMessage("Hello from App.vue!");
 
 <template>
   <div>
-    <h1>Sumber Berkat Mart</h1>
+    <h1>Shipping Record Checker</h1>
   </div>
   <TextInputTable />
 </template>
