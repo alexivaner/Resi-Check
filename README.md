@@ -8,7 +8,7 @@
 
 ## About
 
-Resi Checker is a versatile shipping data management application designed to streamline and enhance the process of tracking and managing shipments. It provides users with an intuitive and feature-rich platform to handle various aspects of shipping data. Some of its key functionalities include:
+Resi Checker is a versatile shipping data management application designed to streamline and enhance the process of tracking and managing shipments. It provides users with an intuitive and feature-rich platform to handle various aspects of shipping data. Built based on Vue.js and Electron, so it could behave like a native app on your Windows/MacOS. You could try and install it directly from [here](https://github.com/alexivaner/Resi-Check/releases/tag/v1.0.1) Some of its key functionalities include:
 
 1. **Dark Mode and Color Scheme**: Resi Checker offers a visually comfortable experience with both Dark and Light modes, adapting to your system's color scheme preference.
 2. **Search and Filtering**: Users can easily search and filter shipping data based on different criteria such as tracking number ("resiInput"), date, and provider. Preset date ranges simplify data retrieval.
