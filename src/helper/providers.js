@@ -1,6 +1,7 @@
 // providers.js
 
 export const providerRegexes = {
+    "SPX Standard": /^SPXID\d+$/,
     "Pos Reguler": /^SHPE\d{11}$/,
     "ID Express": /^IDS\d{12}$/,
     "J&T Express": /^JP\d{10}$/,

@@ -23,6 +23,12 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
       // Deliberately strip event as it includes `sender`
       ipcRenderer.on(channel, (event, ...args) => func(...args))
     }
+  },
+  openDialog: () => {
+    ipcRenderer.send('openDialog');
+  },
+  dialogResponse: (response) => {
+    ipcRenderer.on('dialogResponse', response);
   }
 })
 

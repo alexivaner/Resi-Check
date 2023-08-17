@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, session, nativeTheme } from 'electron';
+import { app, BrowserWindow, ipcMain, session, nativeTheme, dialog } from 'electron';
 import { join } from 'path';
 import {
   autoUpdater
@@ -85,6 +85,31 @@ ipcMain.on("ready", (event) => {
   //Load JSON File
   mainWindow.webContents.send('loadFromJson', loadTableDataFromJSON());
 });
+
+ipcMain.on('openDialog', () => {
+  dialog.showMessageBox(mainWindow, {
+      'type': 'question',
+      'title': 'Confirmation',
+      'message': "Apakah kamu yakin?",
+      'buttons': [
+          'Ya',
+          'Tidak'
+      ]
+  })
+      // Dialog returns a promise so let's handle it correctly
+      .then((result) => {
+          // Bail if the user pressed "No" or escaped (ESC) from the dialog box
+          if (result.response !== 0) { return; }
+
+          // Testing.
+          if (result.response === 0) {
+              console.log('The "Yes" button was pressed (main process)');
+          }
+
+          // Reply to the render process
+          mainWindow.webContents.send('dialogResponse', result.response);
+      })
+})
 
 ipcMain.on("saveToJson", (event, data) => {
   console.log("event in savetojson ", data);

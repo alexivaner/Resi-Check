@@ -245,6 +245,7 @@ export default {
           layout: {
             padding: 30,
           },
+          onClick: this.handleBarClick, // Attach the click event handler
           plugins: {
             legend: {
               display: false, // Hide the legend
@@ -263,6 +264,30 @@ export default {
           },
         },
       });
+    },
+
+    handleBarClick(event) {
+      // Get the clicked dataset and index
+      const res = this.chartInstance.getElementsAtEventForMode(
+        event,
+        "nearest",
+        { intersect: true },
+        true
+      );
+      // If didn't click on a bar, `res` will be an empty array
+      if (res.length === 0) {
+        return;
+      }
+
+      // Get the label and index of the clicked bar
+      const provider = this.chartInstance.data.labels[res[0].index];
+
+      console.log("Provider is: %o", provider);
+
+      const dateRange = this.date;
+      
+      // Emit the click event data to the parent component
+      this.$emit("bar-click", { provider, dateRange });
     },
 
     closeModal() {
@@ -301,7 +326,7 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.sumary-data-container{
+.sumary-data-container {
   display: flex;
   justify-content: space-between;
   align-items: left;

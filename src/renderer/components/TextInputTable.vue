@@ -19,6 +19,7 @@
       <template v-if="selectedSearchColumn === 'provider'">
         <select v-model="providerQuery">
           <option value="">All</option>
+          <option value="SPX Standard">SPX Standard</option>
           <option value="J&T Express">J&T Express</option>
           <option value="Pos Reguler">Pos Regular</option>
           <option value="ID Express">ID Express</option>
@@ -28,7 +29,7 @@
           <option value="Unknown Provider">Unknown Provider</option>
         </select>
       </template>
-      <template v-else-if="selectedSearchColumn === 'date'">
+      <!-- <template v-else-if="selectedSearchColumn === 'date'">
         <div class="date-picker">
           <VueDatePicker
             v-model="dateRange"
@@ -38,13 +39,22 @@
             :dark="isDarkMode"
           />
         </div>
-      </template>
+      </template> -->
       <template v-else>
         <input v-model="searchQuery" type="text" placeholder="Cari berdasarkan..." />
       </template>
+      <div class="date-picker">
+        <VueDatePicker
+          v-model="dateRange"
+          position="center"
+          range
+          :preset-ranges="presetRanges"
+          :dark="isDarkMode"
+        />
+      </div>
       <select v-model="selectedSearchColumn">
         <option value="resiInput">Nomor Resi/Order</option>
-        <option value="date">Tanggal</option>
+        <!-- <option value="date">Tanggal</option> -->
         <option value="provider">Depo Pengiriman</option>
       </select>
     </div>
@@ -261,6 +271,7 @@
     :modifiedTableData="tableData"
     :isDarkMode="isDarkMode"
     @close="closeSummaryModal"
+    @bar-click="handleBarClick"
   />
   <!-- Add a router link to navigate to the Summary page -->
 </template>
@@ -361,6 +372,17 @@ export default {
       this.nomorOrder = this.nomorOrder.toUpperCase();
     },
 
+    handleBarClick({ provider, dateRange }) {
+      // Handle the click event in the parent component
+      console.log("Bar Clicked! provider:", provider, "dateRange:", dateRange);
+      if (!provider) return;
+      this.providerQuery = provider;
+      this.dateRange = dateRange;
+      this.selectedSearchColumn = "provider";
+      this.showSummaryModal = false;
+      // Perform any other actions you want based on the clicked bar
+    },
+
     addToTable(checkProvider = true) {
       if (
         this.resiInput &&
@@ -420,11 +442,23 @@ export default {
     },
 
     // Method to delete an entry from tableData
-    deleteEntry(entryKey) {
+    deleteEntry(entryKey, confirmation = true) {
       //TODO: Add confirmation before delete
-      const confirmation = confirm("Are you sure you want to delete this entry?");
 
       if (confirmation) {
+        // Response from main process
+        window.ipcRenderer.openDialog("openDialog");
+
+        window.ipcRenderer.dialogResponse((event, response) => {
+          if (response === 0) {
+            // Perform your render action here
+            // Perform the deletion if the user confirms
+            delete this.tableData[entryKey];
+            window.ipcRenderer.send("deleteToJson", entryKey);
+          }
+        });
+      } else {
+        // Perform your render action here
         // Perform the deletion if the user confirms
         delete this.tableData[entryKey];
         window.ipcRenderer.send("deleteToJson", entryKey);
@@ -435,36 +469,31 @@ export default {
       modifiedData.provider = this.getProviderFromText(modifiedData.resiInput);
       modifiedData.laba = modifiedData.hargaShopee - modifiedData.hargaToko;
 
-      //TODO: Confirm input if provider is unknown, if user return yes then add
+      //TODO: Add confirmation before delete
+      window.ipcRenderer.openDialog("openDialog");
 
-      //Confirm if modifiedData.resiInput already available
-      // if (this.tableData.hasOwnProperty(modifiedData.resiInput)) {
-      //   this.showDuplicatePopup = true;
-      //   this.duplicatePopupMessage = `Resi "${
-      //     modifiedData.resiInput
-      //   }" sudah di-input tanggal ${this.tableData[modifiedData.resiInput].date} pukul ${
-      //     this.tableData[modifiedData.resiInput].time
-      //   }.`;
-      //   return;
-      // }
+      // Response from main process
+      window.ipcRenderer.dialogResponse((event, response) => {
+        if (response === 0) {
+          //Delete old data first
+          console.log("oldkey is", oldKey);
+          delete this.tableData[oldKey];
+          this.deleteEntry(oldKey, false);
 
-      //Delete old data first
-      console.log("oldkey is", oldKey);
-      delete this.tableData[oldKey];
-      this.deleteEntry(oldKey);
+          //Update input locally
+          this.tableData[modifiedData.resiInput] = modifiedData;
 
-      //Update input locally
-      this.tableData[modifiedData.resiInput] = modifiedData;
+          //Update input to json file
+          const saveDataObject = {
+            [modifiedData.resiInput]: modifiedData,
+          };
+          console.log("saveDataObject", saveDataObject);
+          window.ipcRenderer.send("saveToJson", JSON.stringify(saveDataObject, null, 2));
 
-      //Update input to json file
-      const saveDataObject = {
-        [modifiedData.resiInput]: modifiedData,
-      };
-      console.log("saveDataObject", saveDataObject);
-      window.ipcRenderer.send("saveToJson", JSON.stringify(saveDataObject, null, 2));
-
-      this.editMode = false; // Reset the selected index
-      this.modifiedEntry = {}; // Reset the modified entry
+          this.editMode = false; // Reset the selected index
+          this.modifiedEntry = {}; // Reset the modified entry
+        }
+      });
     },
     cancelModification() {
       this.editMode = false; // Reset the selected index
@@ -591,7 +620,11 @@ export default {
       if (!this.sortBy) return this.tableData;
       let filteredData = [];
 
-      if (this.selectedSearchColumn == "date" && this.dateRange) {
+      if (this.dateRange == null) {
+        this.dateRange = [];
+      }
+
+      if (this.dateRange.length !== 0) {
         // Get the start and end dates from the selected date range
         let startDate = null;
         if (this.dateRange[0]) {
@@ -613,8 +646,38 @@ export default {
             endDate = startDate;
           }
 
+          let searchValue = null;
           if (dataDate >= startDate && dataDate <= endDate) {
-            filteredData.push([key, this.tableData[key]]); // Push the filtered data as an object to the array
+            if (this.selectedSearchColumn == "provider") {
+              searchValue = this.providerQuery.toLowerCase().trim();
+            } else {
+              searchValue = this.searchQuery.toLowerCase().trim();
+            }
+            if (searchValue === "") {
+              filteredData.push([key, this.tableData[key]]); // Push the filtered data as an object to the array
+            } else {
+              // Check if the key (resiInput) contains the search query
+              if (key.toLowerCase().includes(searchValue)) {
+                filteredData.push([key, this.tableData[key]]); // Push the filtered data as an object to the array
+              }
+
+              // Check if any of the other properties in the object contain the search query
+              for (const property in this.tableData[key]) {
+                if (
+                  this.tableData[key].hasOwnProperty(property) &&
+                  typeof this.tableData[key][property] === "string"
+                ) {
+                  const dataValue = this.tableData[key][property]
+                    .toString()
+                    .toLowerCase()
+                    .trim();
+                  if (dataValue.includes(searchValue)) {
+                    filteredData.push([key, this.tableData[key]]); // Push the filtered data as an object to the array
+                    break;
+                  }
+                }
+              }
+            }
           }
         }
       } else {
