@@ -13,10 +13,9 @@ Shipping Record Checker is a versatile shipping data management application desi
 2. **Search and Filtering**: Users can easily search and filter shipping data based on different criteria such as tracking number ("resiInput"), date, and provider. Preset date ranges simplify data retrieval.
 3. **Provider Detection**: The app employs advanced regular expressions to accurately identify shipping providers based on tracking numbers. A confirmation popup helps ensure data accuracy.
 4. **Edit and Delete**: Resi Checker enables editing of existing shipping entries, allowing modifications to data with the ability to save changes. A confirmation prompt prevents accidental deletions.
-5. **About and Summary Modals**: The "About" modal provides insights into the app's features, while the "Summary" modal presents an overview of shipping data. Both modals enhance user navigation.
-6. **Code Optimization**: The code has been refined for improved readability and maintainability, making the app more robust and easier to manage.
-7. **Data Persistence**: Resi Checker interacts seamlessly with data storage, utilizing JSON files to load and save shipping data, ensuring data persistence.
-8. **Summary Features**: The app includes a Date Range Selector for flexible date filtering, a Bar Chart to visualize provider data, and a Summary Data section for key metrics.
+5. **Code Optimization**: The code has been refined for improved readability and maintainability, making the app more robust and easier to manage.
+6. **Data Persistence**: Resi Checker interacts seamlessly with data storage, utilizing JSON files to load and save shipping data, ensuring data persistence.
+7. **Summary Features**: The app includes a Date Range Selector for flexible date filtering, a Bar Chart to visualize provider data, and a Summary Data section for key metrics.
 
 Overall, Resi Checker is a comprehensive shipping data management solution that empowers users to efficiently track, organize, and analyze shipment information while providing a visually appealing and user-friendly interface.
 
