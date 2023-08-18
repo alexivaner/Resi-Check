@@ -2,8 +2,11 @@
   <div class="query-container">
     <!-- Add a button to toggle between dark and light mode -->
     <div class="switch-scheme-button">
-      <button @click="toggleSummaryModal">
-        <span> <i class="fa fa-bar-chart"></i> Summary</span>
+      <button @click="togglePaidOff">
+        <span> <i class="fa fa-bar-chart"></i>Pelunasan</span>
+      </button>
+      <button @click="toggleSaleModal">
+        <span> <i class="fa fa-bar-chart"></i>Penjualan</span>
       </button>
       <button @click="toggleColorScheme">
         <span v-if="isDarkMode"> <i class="fas fa-sun"></i> Light Mode </span>
@@ -16,6 +19,14 @@
       </button>
     </div>
     <div class="search-container">
+      <div style="margin: 10px">
+        <h3>Indikator pencarian :</h3>
+      </div>
+      <select style="margin-right:10px" v-model="selectedSearchColumn">
+        <option  value="resiInput">Nomor Resi/Order</option>
+        <!-- <option value="date">Tanggal</option> -->
+        <option value="provider">Depo Pengiriman</option>
+      </select>
       <template v-if="selectedSearchColumn === 'provider'">
         <select v-model="providerQuery">
           <option value="">All</option>
@@ -29,20 +40,17 @@
           <option value="Unknown Provider">Unknown Provider</option>
         </select>
       </template>
-      <!-- <template v-else-if="selectedSearchColumn === 'date'">
-        <div class="date-picker">
-          <VueDatePicker
-            v-model="dateRange"
-            position="center"
-            range
-            :preset-ranges="presetRanges"
-            :dark="isDarkMode"
-          />
-        </div>
-      </template> -->
       <template v-else>
         <input v-model="searchQuery" type="text" placeholder="Cari berdasarkan..." />
       </template>
+      <div style="margin: 10px">
+        <h3>Range tanggal :</h3>
+      </div>
+      <select v-model="selectedDateColumn">
+        <option value="dateResi">Tanggal Input Resi</option>
+        <!-- <option value="date">Tanggal</option> -->
+        <option value="dateLunas">Tanggal Pelunasan</option>
+      </select>
       <div class="date-picker">
         <VueDatePicker
           v-model="dateRange"
@@ -52,11 +60,6 @@
           :dark="isDarkMode"
         />
       </div>
-      <select v-model="selectedSearchColumn">
-        <option value="resiInput">Nomor Resi/Order</option>
-        <!-- <option value="date">Tanggal</option> -->
-        <option value="provider">Depo Pengiriman</option>
-      </select>
     </div>
 
     <input
@@ -203,6 +206,16 @@
               }"
             ></span>
           </th>
+          <th @click="sortTable('lunasDate')">
+            Waktu Pelunasan
+            <span
+              class="sort-icon"
+              :class="{
+                asc: sortBy === 'lunasDate' && sortDirection === 1,
+                desc: sortBy === 'lunasDate' && sortDirection === -1,
+              }"
+            ></span>
+          </th>
           <th>Action Button</th>
         </tr>
       </thead>
@@ -221,7 +234,8 @@
             <span v-if="entry.lunas" class="check-mark">&#x2713;</span>
             <span v-else class="cross-mark">&#x2718;</span>
           </td>
-          <!-- Display the Provider based on the provided information -->
+          <td>{{ entry.lunasDate ? entry.lunasDate : "-" }}</td>
+          <!-- This is the action button -->
           <td>
             <button @click="modifyEntry(resiInput)" class="icon-button">
               <i class="fas fa-edit"></i>
@@ -266,12 +280,19 @@
   />
   <!-- Display the AboutModal component when the about modal should be visible -->
   <AboutModal v-if="showAboutModal" @close="closeAboutModal" />
-  <Summary
-    v-if="showSummaryModal"
+  <SummaryPenjualan
+    v-if="showSaleModal"
     :modifiedTableData="tableData"
     :isDarkMode="isDarkMode"
-    @close="closeSummaryModal"
+    @close="closeSaleModal"
     @bar-click="handleBarClick"
+  />
+  <SummaryPelunasan
+    v-if="showPaidOffModal"
+    :modifiedTableData="tableData"
+    :isDarkMode="isDarkMode"
+    @close="closePaidOffModal"
+    @bar-click="handleBarPelunasan"
   />
   <!-- Add a router link to navigate to the Summary page -->
 </template>
@@ -281,7 +302,8 @@ import PopupModal from "./PopupModal.vue";
 import { providerRegexes } from "../../helper/providers"; // Import the providerRegexes from the external file
 import AboutModal from "./AboutModal.vue";
 import EditComponent from "./EditComponent.vue";
-import Summary from "./Summary.vue";
+import SummaryPenjualan from "./SummaryPenjualan.vue";
+import SummaryPelunasan from "./SummaryPelunasan.vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import {
   endOfMonth,
@@ -329,10 +351,12 @@ export default {
       appPath: "",
       isDarkMode: false, // Add a new data property to track the color scheme
       showAboutModal: false, // New data property to control the visibility of the about modal
-      showSummaryModal: false,
+      showSaleModal: false,
+      showPaidOffModal: false,
       searchQuery: "", // New data property for search query,
       providerQuery: "",
       selectedSearchColumn: "resiInput", // New data property for selected search column
+      selectedDateColumn: "dateResi",
       dateRange: [], // New data property for date range selection
       presetRanges: [
         { label: "Hari ini", range: [new Date(), new Date()] },
@@ -379,7 +403,19 @@ export default {
       this.providerQuery = provider;
       this.dateRange = dateRange;
       this.selectedSearchColumn = "provider";
-      this.showSummaryModal = false;
+      this.showSaleModal = false;
+      // Perform any other actions you want based on the clicked bar
+    },
+
+    handleBarPelunasan({ provider, dateRange }) {
+      // Handle the click event in the parent component
+      console.log("Bar Clicked! provider:", provider, "dateRange:", dateRange);
+      if (!provider) return;
+      this.providerQuery = provider;
+      this.dateRange = dateRange;
+      this.selectedDateColumn = "dateLunas";
+      this.selectedSearchColumn = "provider";
+      this.showPaidOffModal = false;
       // Perform any other actions you want based on the clicked bar
     },
 
@@ -415,6 +451,12 @@ export default {
               laba: this.hargaShopee - this.hargaToko,
               lunas: this.lunas,
             };
+
+            if (this.lunas) {
+              this.tableData[entryKey].lunasDate = this.dateInput + " " + formattedTime;
+            } else {
+              this.tableData[entryKey].lunasDate = null;
+            }
 
             this.newlyAddedData[entryKey] = this.tableData[entryKey];
             window.ipcRenderer.send(
@@ -468,6 +510,18 @@ export default {
     saveModifiedEntry(modifiedData, oldKey) {
       modifiedData.provider = this.getProviderFromText(modifiedData.resiInput);
       modifiedData.laba = modifiedData.hargaShopee - modifiedData.hargaToko;
+
+      if (modifiedData.lunas) {
+        const now = new Date();
+        modifiedData.lunasDate =
+          now.toISOString().slice(0, 10) +
+          " " +
+          String(now.getHours()).padStart(2, "0") +
+          ":" +
+          String(now.getMinutes()).padStart(2, "0");
+      } else {
+        modifiedData.lunasDate = null;
+      }
 
       //TODO: Add confirmation before delete
       window.ipcRenderer.openDialog("openDialog");
@@ -597,20 +651,29 @@ export default {
     },
 
     // Method to show the about modal
-    async toggleSummaryModal() {
-      this.showSummaryModal = true;
+    async toggleSaleModal() {
+      this.showSaleModal = true;
+    },
+
+    async togglePaidOff() {
+      this.showPaidOffModal = true;
     },
 
     // Method to close the about modal
-    closeSummaryModal() {
-      this.showSummaryModal = false;
+    closeSaleModal() {
+      this.showSaleModal = false;
+    },
+
+    closePaidOffModal() {
+      this.showPaidOffModal = false;
     },
   },
 
   components: {
     PopupModal,
     AboutModal,
-    Summary,
+    SummaryPenjualan,
+    SummaryPelunasan,
     EditComponent,
     VueDatePicker,
   },
@@ -639,8 +702,18 @@ export default {
         }
 
         // Filter the data based on the selected date range
+
         for (const key in this.tableData) {
-          const dataDate = new Date(this.tableData[key].date);
+          let dataDate = null;
+          if (this.selectedDateColumn == "dateResi") {
+            dataDate = new Date(this.tableData[key].date);
+          } else {
+            if (this.tableData[key].lunasDate) {
+              dataDate = new Date(this.tableData[key].lunasDate.split(" ")[0]);
+            } else {
+              continue;
+            }
+          }
           dataDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0
           if (endDate === null) {
             endDate = startDate;

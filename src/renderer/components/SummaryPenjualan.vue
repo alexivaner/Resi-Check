@@ -5,8 +5,8 @@
         <i class="fa fa-times"></i>
       </div>
       <div class="depo-pengiriman-chart">
-        <h2>Jumlah Depo Pengiriman</h2>
-        <h3>Set range tanggal</h3>
+        <h1>Summary Penjualan</h1>
+        <h2>Set range tanggal input resi</h2>
         <VueDatePicker
           v-model="date"
           position="center"
@@ -26,18 +26,23 @@
           </div>
           <div class="total-laba">
             <span>
-              <h3>Total Lunas</h3>
+              <h3>Total Resi Lunas (*)</h3>
               <p style="font-size: 25px">{{ totalLunas }} Resi</p></span
             >
           </div>
           <div class="total-laba">
             <span>
-              <h3>Total Belum Lunas</h3>
+              <h3>Total Belum Lunas (*)</h3>
               <p style="font-size: 25px">{{ totalBelumLunas }} Resi</p></span
             >
           </div>
         </div>
-
+        <div style="margin-bottom:20px">
+          <span
+            >*Resi lunas, dan belum lunas pada summary ini adalah berdasarkan tanggal
+            input resi, bukan tanggal pelunasan.</span
+          >
+        </div>
         <!-- Increased width and height -->
       </div>
     </div>
@@ -285,7 +290,7 @@ export default {
       console.log("Provider is: %o", provider);
 
       const dateRange = this.date;
-      
+
       // Emit the click event data to the parent component
       this.$emit("bar-click", { provider, dateRange });
     },
@@ -330,6 +335,6 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: left;
-  margin: 50px;
+  margin: 10px 50px 10px 50px;
 }
 </style>
