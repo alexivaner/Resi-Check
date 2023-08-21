@@ -23,7 +23,7 @@
               type="text"
               placeholder="Masukkan nomor order"
               @input="convertToUppercase"
-              maxlength="6"
+              maxlength="14"
               @keyup.enter="moveFocusToNextInput"
             />
           </label>
@@ -34,7 +34,8 @@
             <input
               ref="hargaShopeeRef"
               v-model="dataEntry.hargaShopee"
-              type="number"
+              type="text"
+              @input="preventTextDot('shopee')"
               placeholder="Masukkan harga shopee"
               @keyup.enter="moveFocusToNextInput"
             />
@@ -46,7 +47,8 @@
             <input
               ref="hargaTokoRef"
               v-model="dataEntry.hargaToko"
-              type="number"
+              type="text"
+              @input="preventTextDot('toko')"
               placeholder="Masukkan harga toko"
               @keyup.enter="moveFocusToNextInput"
             />
@@ -109,6 +111,16 @@ export default {
     cancelModification() {
       this.$emit("close");
     },
+    preventTextDot(index) {
+      console.log("index is %o", index);
+      if (index == "shopee") {
+        let current = this.dataEntry.hargaShopee;
+        this.dataEntry.hargaShopee = current.replace(/[\D\.,]/g, "");
+      } else {
+        let current = this.dataEntry.hargaToko;
+        this.dataEntry.hargaToko = current.replace(/[\D\.,]/g, "");
+      }
+    },
     convertToUppercase() {
       this.dataEntry.nomorOrder = this.dataEntry.nomorOrder.toUpperCase();
     },
@@ -142,8 +154,8 @@ export default {
 }
 
 .input-child {
-    margin: 20px;
-    float: left;
+  margin: 20px;
+  float: left;
 }
 
 .bigger-checkbox {

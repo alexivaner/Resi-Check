@@ -22,8 +22,8 @@
       <div style="margin: 10px">
         <h3>Indikator pencarian :</h3>
       </div>
-      <select style="margin-right:10px" v-model="selectedSearchColumn">
-        <option  value="resiInput">Nomor Resi/Order</option>
+      <select style="margin-right: 10px" v-model="selectedSearchColumn">
+        <option value="resiInput">Nomor Resi/Order</option>
         <!-- <option value="date">Tanggal</option> -->
         <option value="provider">Depo Pengiriman</option>
       </select>
@@ -78,12 +78,13 @@
       placeholder="Masukkan nomor order"
       @focus="autoFillDateTime"
       @keyup.enter="moveFocusToNextInput"
-      maxlength="6"
+      maxlength="14"
     />
     <input
       ref="hargaShopeeRef"
       v-model="hargaShopee"
-      type="number"
+      type="text"
+      @input="preventTextDot('shopee')"
       placeholder="Masukkan harga shopee"
       @focus="autoFillDateTime"
       @keyup.enter="moveFocusToNextInput"
@@ -91,7 +92,8 @@
     <input
       ref="hargaTokoRef"
       v-model="hargaToko"
-      type="number"
+      type="text"
+      @input="preventTextDot('toko')"
       placeholder="Masukkan harga toko"
       @focus="autoFillDateTime"
       @keyup.enter="addToTable"
@@ -396,6 +398,17 @@ export default {
       this.nomorOrder = this.nomorOrder.toUpperCase();
     },
 
+    preventTextDot(index) {
+      console.log("index is %o", index);
+      if (index == "shopee") {
+        let current = this.hargaShopee;
+        this.hargaShopee = current.replace(/[\D\.,]/g, "");
+      } else {
+        let current = this.hargaToko;
+        this.hargaToko = current.replace(/[\D\.,]/g, "");
+      }
+    },
+
     handleBarClick({ provider, dateRange }) {
       // Handle the click event in the parent component
       console.log("Bar Clicked! provider:", provider, "dateRange:", dateRange);
@@ -437,7 +450,7 @@ export default {
           if (provider === "Unknown Provider" && checkProvider) {
             this.showConfirmationPopup = true;
             this.confirmationPopupMessage = `Provider pengiriman "${this.resiInput}" tidak diketahui. Masih ingin menambah data?`;
-          } else if (this.nomorOrder.length !== 6 && checkProvider) {
+          } else if (this.nomorOrder.length !== 14 && checkProvider) {
             this.showConfirmationPopup = true;
             this.confirmationPopupMessage = `Nomor order "${this.nomorOrder}" tidak 6 digit. Masih ingin menambah data?`;
           } else {

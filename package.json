@@ -1,6 +1,6 @@
 {
-    "name": "Sumber-Berkat-Resi-Checker",
-    "version": "1.0.2",
+    "name": "Shopee-Resi-Checker",
+    "version": "1.0.3",
     "description": "A minimal resi checker",
     "main": "build/main/main.js",
     "scripts": {
