@@ -148,7 +148,9 @@ export default {
     totalUangMasuk() {
       let total = 0;
       for (const key in this.filteredData) {
-        total += this.filteredData[key].hargaShopee;
+        if (this.filteredData[key].lunas) {
+          total += parseInt(this.filteredData[key].hargaShopee);
+        }
       }
       return total.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
     },
@@ -156,7 +158,7 @@ export default {
     totalLaba() {
       let total = 0;
       for (const key in this.filteredData) {
-        total += this.filteredData[key].laba;
+        total += parseInt(this.filteredData[key].laba);
       }
       return total.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
     },
