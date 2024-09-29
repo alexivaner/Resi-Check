@@ -6,54 +6,59 @@
       </div>
       <div class="depo-pengiriman-chart">
         <h1>Summary Pelunasan</h1>
-        <h2>Set range tanggal pelunasan</h2>
-        <VueDatePicker
-          v-model="date"
-          position="center"
-          @update:model-value="handleDate"
-          range
-          :preset-ranges="presetRanges"
-          :dark="isDarkMode"
-        />
+        <!-- Create a container for platform query and date picker -->
+        <div class="filter-row">
+          <div class="filter-item">
+            <h2>Set platform</h2>
+            <select v-model="platformQuery" @update:model-value="handleDate">
+              <option value="">All</option>
+              <option value="Shopee">Shopee</option>
+              <option value="Tokopedia">Tokopedia</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <h2>Set range tanggal pelunasan</h2>
+            <VueDatePicker v-model="date" position="center" @update:model-value="handleDate" range
+              :preset-ranges="presetRanges" :dark="isDarkMode" />
+          </div>
+        </div>
         <br />
         <canvas class="chart" ref="chart" width="900" height="400"></canvas>
         <div class="sumary-data-container">
           <div class="total-laba">
             <span>
-              <h3>Total Dilunasi Shopee</h3>
-              <p style="font-size: 25px">{{ totalUangMasuk }}</p></span
-            >
+              <h3>Total Dilunasi</h3>
+              <p style="font-size: 25px">{{ totalUangMasuk }}</p>
+            </span>
           </div>
           <div class="total-laba">
             <span>
               <h3>Total Laba</h3>
-              <p style="font-size: 25px">{{ totalLaba }}</p></span
-            >
+              <p style="font-size: 25px">{{ totalLaba }}</p>
+            </span>
           </div>
           <div class="total-laba">
             <span>
               <h3>Jumlah Pelunasan (*)</h3>
-              <p style="font-size: 25px">{{ totalLunas }} Resi</p></span
-            >
+              <p style="font-size: 25px">{{ totalLunas }} Resi</p>
+            </span>
           </div>
           <div class="total-laba">
             <span>
               <h3>Jumlah Belum Lunas (*)</h3>
-              <p style="font-size: 25px">{{ totalBelumLunas }} Resi</p></span
-            >
+              <p style="font-size: 25px">{{ totalBelumLunas }} Resi</p>
+            </span>
           </div>
         </div>
         <div style="margin-bottom: 20px">
-          <span
-            >*Resi lunas, dan belum lunas pada summary ini adalah berdasarkan tanggal
-            pelunasan.</span
-          >
+          <span>*Resi lunas, dan belum lunas pada summary ini adalah berdasarkan tanggal
+            pelunasan.</span>
         </div>
-        <!-- Increased width and height -->
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import { Chart, registerables } from "chart.js";
@@ -93,6 +98,7 @@ export default {
     return {
       date: null,
       filteredData: null, // Add a new data property to store the filtered data
+      platformQuery: "",
       presetRanges: [
         { label: "Hari ini", range: [new Date(), new Date()] },
         {
@@ -149,7 +155,7 @@ export default {
       let total = 0;
       for (const key in this.filteredData) {
         if (this.filteredData[key].lunas) {
-          total += parseInt(this.filteredData[key].hargaShopee);
+          total += parseInt(this.filteredData[key].hargaOnline);
         }
       }
       return total.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
@@ -201,18 +207,26 @@ export default {
         endDate.setHours(23, 59, 59, 999); // Set hours, minutes, seconds, and milliseconds to end of day
       }
 
-      // Filter the data based on the selected date range
+      // Filter the data based on the selected date range and platform
       this.filteredData = {};
       for (const key in this.modifiedTableData) {
-        if (this.modifiedTableData[key].lunasDate) {
-          const dataDate = new Date(this.modifiedTableData[key].lunasDate.split(" ")[0]);
+        const data = this.modifiedTableData[key];
+
+        if(data.platform != this.platformQuery && this.platformQuery != "") {
+          continue;
+        }
+
+
+        // Apply date filter
+        if (data.lunasDate) {
+          const dataDate = new Date(data.lunasDate.split(" ")[0]);
           dataDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0
           if (endDate == null) {
             endDate = startDate;
           }
 
           if (dataDate >= startDate && dataDate <= endDate) {
-            this.filteredData[key] = this.modifiedTableData[key];
+            this.filteredData[key] = data;
           }
         }
       }
@@ -335,17 +349,18 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(
-    36,
-    36,
-    36,
-    0.8
-  ) !important; /* Semi-transparent black background */
-  z-index: 9999; /* Ensure the modal is on top of other elements */
+  background-color: rgba(36,
+      36,
+      36,
+      0.8) !important;
+  /* Semi-transparent black background */
+  z-index: 9999;
+  /* Ensure the modal is on top of other elements */
 }
 
 .modal-content {
-  max-width: 1280px !important; /* Set a maximum width for the modal */
+  max-width: 1280px !important;
+  /* Set a maximum width for the modal */
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -357,4 +372,21 @@ export default {
   align-items: left;
   margin: 10px 50px 10px 50px;
 }
+
+.filter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-item {
+  flex: 1;
+  margin-right: 20px; /* Add space between the elements */
+}
+
+.filter-item:last-child {
+  margin-right: 0; /* Remove margin on the last element */
+}
+
 </style>

@@ -30,13 +30,13 @@
         </div>
         <div class="input-child">
           <label>
-            Harga Shopee
+            Harga toko online
             <input
-              ref="hargaShopeeRef"
-              v-model="dataEntry.hargaShopee"
+              ref="hargaOnlineRef"
+              v-model="dataEntry.hargaOnline"
               type="text"
               @input="preventTextDot('shopee')"
-              placeholder="Masukkan harga shopee"
+              placeholder="Garga toko online"
               @keyup.enter="moveFocusToNextInput"
             />
           </label>
@@ -114,8 +114,8 @@ export default {
     preventTextDot(index) {
       console.log("index is %o", index);
       if (index == "shopee") {
-        let current = this.dataEntry.hargaShopee;
-        this.dataEntry.hargaShopee = current.replace(/[\D\.,]/g, "");
+        let current = this.dataEntry.hargaOnline;
+        this.dataEntry.hargaOnline = current.replace(/[\D\.,]/g, "");
       } else {
         let current = this.dataEntry.hargaToko;
         this.dataEntry.hargaToko = current.replace(/[\D\.,]/g, "");

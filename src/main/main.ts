@@ -177,11 +177,28 @@ function deleteEntryFromJSON(entryKey) {
 }
 
 function loadTableDataFromJSON() {
-  const filePath = path.join(app.getPath('home')
-    , "tableData.json");
+  const filePath = path.join(app.getPath("home"), "tableData.json");
+  
   try {
     const data = fs.readFileSync(filePath, "utf8");
-    return data;
+    const tableData = JSON.parse(data);
+
+    Object.keys(tableData).forEach(key => {
+      const entry = tableData[key];
+      
+      // Rename 'hargaShopee' to 'hargaOnline' if it exists
+      if (entry.hasOwnProperty('hargaShopee')) {
+        entry.hargaOnline = entry.hargaShopee;
+        delete entry.hargaShopee;
+      }
+    });
+
+    // Save the updated data
+    fs.writeFileSync(filePath, JSON.stringify(tableData, null, 2), "utf8");
+
+    //Reload
+    const dataReloaded = fs.readFileSync(filePath, "utf8");
+    return dataReloaded;
   } catch (error) {
     console.error("Error loading table data from JSON file:", error);
     return {};

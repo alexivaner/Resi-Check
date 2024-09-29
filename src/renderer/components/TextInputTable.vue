@@ -26,6 +26,7 @@
         <option value="resiInput">Nomor Resi/Order</option>
         <!-- <option value="date">Tanggal</option> -->
         <option value="provider">Depo Pengiriman</option>
+        <option value="platform">Platform</option>
       </select>
       <template v-if="selectedSearchColumn === 'provider'">
         <select v-model="providerQuery">
@@ -40,6 +41,13 @@
           <option value="Unknown Provider">Unknown Provider</option>
         </select>
       </template>
+      <template v-else-if="selectedSearchColumn === 'platform'">
+        <select v-model="platformQuery">
+        <option value="">All</option>
+        <option value="Shopee">Shopee</option>
+        <option value="Tokopedia">Tokopedia</option>
+      </select>
+      </template>
       <template v-else>
         <input v-model="searchQuery" type="text" placeholder="Cari berdasarkan..." />
       </template>
@@ -52,61 +60,21 @@
         <option value="dateLunas">Tanggal Pelunasan</option>
       </select>
       <div class="date-picker">
-        <VueDatePicker
-          v-model="dateRange"
-          position="center"
-          range
-          :preset-ranges="presetRanges"
-          :dark="isDarkMode"
-        />
+        <VueDatePicker v-model="dateRange" position="center" range :preset-ranges="presetRanges" :dark="isDarkMode" />
       </div>
     </div>
 
-    <input
-      ref="resiInputRef"
-      v-model="resiInput"
-      type="text"
-      placeholder="Masukkan resi"
-      @focus="autoFillDateTime"
-      @keyup.enter="moveFocusToNextInput"
-    />
-    <input
-      ref="nomorOrderRef"
-      v-model="nomorOrder"
-      type="text"
-      @input="convertToUppercase"
-      placeholder="Masukkan nomor order"
-      @focus="autoFillDateTime"
-      @keyup.enter="moveFocusToNextInput"
-      maxlength="14"
-    />
-    <input
-      ref="hargaShopeeRef"
-      v-model="hargaShopee"
-      type="text"
-      @input="preventTextDot('shopee')"
-      placeholder="Masukkan harga shopee"
-      @focus="autoFillDateTime"
-      @keyup.enter="moveFocusToNextInput"
-    />
-    <input
-      ref="hargaTokoRef"
-      v-model="hargaToko"
-      type="text"
-      @input="preventTextDot('toko')"
-      placeholder="Masukkan harga toko"
-      @focus="autoFillDateTime"
-      @keyup.enter="addToTable"
-    />
+    <input ref="resiInputRef" v-model="resiInput" type="text" placeholder="Masukkan resi" @focus="autoFillDateTime"
+      @keyup.enter="moveFocusToNextInput" />
+    <input ref="nomorOrderRef" v-model="nomorOrder" type="text" @input="convertToUppercase"
+      placeholder="Masukkan nomor order" @focus="autoFillDateTime" @keyup.enter="moveFocusToNextInput" maxlength="14" />
+    <input ref="hargaOnlineRef" v-model="hargaOnline" type="text" @input="preventTextDot('shopee')"
+      placeholder="Harga toko online" @focus="autoFillDateTime" @keyup.enter="moveFocusToNextInput" />
+    <input ref="hargaTokoRef" v-model="hargaToko" type="text" @input="preventTextDot('toko')"
+      placeholder="Masukkan harga toko" @focus="autoFillDateTime" @keyup.enter="addToTable" />
     <input v-model="dateInput" type="date" />
     <input v-model="hourInput" type="number" placeholder="Hour (0-23)" min="0" max="23" />
-    <input
-      v-model="minuteInput"
-      type="number"
-      placeholder="Minute (0-59)"
-      min="0"
-      max="59"
-    />
+    <input v-model="minuteInput" type="number" placeholder="Minute (0-59)" min="0" max="59" />
     <label class="custom-checkbox">
       Lunas
       <input type="checkbox" v-model="lunas" />
@@ -120,103 +88,80 @@
         <tr>
           <th @click="sortTable('resiInput')">
             Resi
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'resiInput' && sortDirection === 1,
-                desc: sortBy === 'resiInput' && sortDirection === -1,
-              }"
-            ></span>
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'resiInput' && sortDirection === 1,
+              desc: sortBy === 'resiInput' && sortDirection === -1,
+            }"></span>
           </th>
           <th @click="sortTable('nomorOrder')">
             Nomor Order
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'nomorOrder' && sortDirection === 1,
-                desc: sortBy === 'nomorOrder' && sortDirection === -1,
-              }"
-            ></span>
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'nomorOrder' && sortDirection === 1,
+              desc: sortBy === 'nomorOrder' && sortDirection === -1,
+            }"></span>
           </th>
           <th @click="sortTable('date')">
             Tanggal
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'date' && sortDirection === 1,
-                desc: sortBy === 'date' && sortDirection === -1,
-              }"
-            ></span>
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'date' && sortDirection === 1,
+              desc: sortBy === 'date' && sortDirection === -1,
+            }"></span>
           </th>
           <th @click="sortTable('time')">
             Waktu
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'time' && sortDirection === 1,
-                desc: sortBy === 'time' && sortDirection === -1,
-              }"
-            ></span>
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'time' && sortDirection === 1,
+              desc: sortBy === 'time' && sortDirection === -1,
+            }"></span>
           </th>
           <th @click="sortTable('provider')">
             Depo Pengiriman
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'provider' && sortDirection === 1,
-                desc: sortBy === 'provider' && sortDirection === -1,
-              }"
-            ></span>
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'provider' && sortDirection === 1,
+              desc: sortBy === 'provider' && sortDirection === -1,
+            }"></span>
           </th>
-          <th @click="sortTable('hargaShopee')">
-            Harga Shopee
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'hargaShopee' && sortDirection === 1,
-                desc: sortBy === 'hargaShopee' && sortDirection === -1,
-              }"
-            ></span>
+          <th @click="sortTable('platform')">
+            Nama Platform
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'platform' && sortDirection === 1,
+              desc: sortBy === 'platform' && sortDirection === -1,
+            }"></span>
+          </th>
+          <th @click="sortTable('hargaOnline')">
+            Harga toko online
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'hargaOnline' && sortDirection === 1,
+              desc: sortBy === 'hargaOnline' && sortDirection === -1,
+            }"></span>
           </th>
           <th @click="sortTable('hargaToko')">
             Harga Toko
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'hargaToko' && sortDirection === 1,
-                desc: sortBy === 'hargaToko' && sortDirection === -1,
-              }"
-            ></span>
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'hargaToko' && sortDirection === 1,
+              desc: sortBy === 'hargaToko' && sortDirection === -1,
+            }"></span>
           </th>
           <th @click="sortTable('laba')">
             Laba
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'laba' && sortDirection === 1,
-                desc: sortBy === 'laba' && sortDirection === -1,
-              }"
-            ></span>
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'laba' && sortDirection === 1,
+              desc: sortBy === 'laba' && sortDirection === -1,
+            }"></span>
           </th>
           <th @click="sortTable('lunas')">
             Lunas
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'lunas' && sortDirection === 1,
-                desc: sortBy === 'lunas' && sortDirection === -1,
-              }"
-            ></span>
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'lunas' && sortDirection === 1,
+              desc: sortBy === 'lunas' && sortDirection === -1,
+            }"></span>
           </th>
           <th @click="sortTable('lunasDate')">
             Waktu Pelunasan
-            <span
-              class="sort-icon"
-              :class="{
-                asc: sortBy === 'lunasDate' && sortDirection === 1,
-                desc: sortBy === 'lunasDate' && sortDirection === -1,
-              }"
-            ></span>
+            <span class="sort-icon" :class="{
+              asc: sortBy === 'lunasDate' && sortDirection === 1,
+              desc: sortBy === 'lunasDate' && sortDirection === -1,
+            }"></span>
           </th>
           <th>Action Button</th>
         </tr>
@@ -228,7 +173,8 @@
           <td>{{ entry.date }}</td>
           <td>{{ entry.time }}</td>
           <td>{{ entry.provider }}</td>
-          <td>{{ entry.hargaShopee }}</td>
+          <td>{{ entry.platform }}</td>
+          <td>{{ entry.hargaOnline }}</td>
           <td>{{ entry.hargaToko }}</td>
           <td>{{ entry.laba }}</td>
           <td>
@@ -250,58 +196,27 @@
       </tbody>
     </table>
   </div>
-  <EditComponent
-    v-if="editMode"
-    :editMode="editMode"
-    :modifiedEntry="modifiedEntry"
-    @close="cancelModification"
-    @confirm="saveModifiedEntry"
-  />
+  <EditComponent v-if="editMode" :editMode="editMode" :modifiedEntry="modifiedEntry" @close="cancelModification"
+    @confirm="saveModifiedEntry" />
 
-  <PopupModal
-    v-if="showPopup"
-    :showModal="showPopup"
-    :modalType="modalType[1]"
-    :modalMessage="popupMessage"
-    @close="hidePopup"
-  />
-  <PopupModal
-    v-if="showDuplicatePopup"
-    :showModal="showDuplicatePopup"
-    :modalMessage="duplicatePopupMessage"
-    :modalType="modalType[1]"
-    @close="hideDuplicatePopup"
-  />
-  <PopupModal
-    v-if="showConfirmationPopup"
-    :showModal="showConfirmationPopup"
-    :modalMessage="confirmationPopupMessage"
-    :modalType="modalType[0]"
-    @confirm="confirmAddToTable"
-    @close="cancelAddToTable"
-  />
+  <PopupModal v-if="showPopup" :showModal="showPopup" :modalType="modalType[1]" :modalMessage="popupMessage"
+    @close="hidePopup" />
+  <PopupModal v-if="showDuplicatePopup" :showModal="showDuplicatePopup" :modalMessage="duplicatePopupMessage"
+    :modalType="modalType[1]" @close="hideDuplicatePopup" />
+  <PopupModal v-if="showConfirmationPopup" :showModal="showConfirmationPopup" :modalMessage="confirmationPopupMessage"
+    :modalType="modalType[0]" @confirm="confirmAddToTable" @close="cancelAddToTable" />
   <!-- Display the AboutModal component when the about modal should be visible -->
   <AboutModal v-if="showAboutModal" @close="closeAboutModal" />
-  <SummaryPenjualan
-    v-if="showSaleModal"
-    :modifiedTableData="tableData"
-    :isDarkMode="isDarkMode"
-    @close="closeSaleModal"
-    @bar-click="handleBarClick"
-  />
-  <SummaryPelunasan
-    v-if="showPaidOffModal"
-    :modifiedTableData="tableData"
-    :isDarkMode="isDarkMode"
-    @close="closePaidOffModal"
-    @bar-click="handleBarPelunasan"
-  />
+  <SummaryPenjualan v-if="showSaleModal" :modifiedTableData="tableData" :isDarkMode="isDarkMode" @close="closeSaleModal"
+    @bar-click="handleBarClick" />
+  <SummaryPelunasan v-if="showPaidOffModal" :modifiedTableData="tableData" :isDarkMode="isDarkMode"
+    @close="closePaidOffModal" @bar-click="handleBarPelunasan" />
   <!-- Add a router link to navigate to the Summary page -->
 </template>
 
 <script>
 import PopupModal from "./PopupModal.vue";
-import { providerRegexes } from "../../helper/providers"; // Import the providerRegexes from the external file
+import { shopeeRegexes, tokopediaRegexes } from "../../helper/providers"; // Import the shopeeRegexes from the external file
 import AboutModal from "./AboutModal.vue";
 import EditComponent from "./EditComponent.vue";
 import SummaryPenjualan from "./SummaryPenjualan.vue";
@@ -324,7 +239,13 @@ export default {
     window.ipcRenderer.send("ready");
     window.ipcRenderer.receive("loadFromJson", (data) => {
       this.tableData = JSON.parse(data);
+      //See resi is it come from tokopedia or shopee
+      for (const [key, value] of Object.entries(this.tableData)) {
+        this.tableData[key].platform = this.getPlatform(key);
+      }
     });
+
+
   },
   data() {
     return {
@@ -333,7 +254,7 @@ export default {
       resiInput: "",
       nomorOrder: "",
       lunas: false,
-      hargaShopee: null,
+      hargaOnline: null,
       hargaToko: null,
       dateInput: "",
       hourInput: "",
@@ -344,7 +265,8 @@ export default {
       duplicatePopupMessage: "",
       showConfirmationPopup: false,
       confirmationPopupMessage: "",
-      providerRegexes: providerRegexes, // Assign the imported dictionary to the data property
+      shopeeRegexes: shopeeRegexes, // Assign the imported dictionary to the data property
+      tokopediaRegexes: tokopediaRegexes, // Assign the imported dictionary to the data property
       tableData: {}, // Change to an object
       newlyAddedData: {}, //newly added data for add to json file
       modalType: ["confirmation", "warning"],
@@ -357,6 +279,7 @@ export default {
       showPaidOffModal: false,
       searchQuery: "", // New data property for search query,
       providerQuery: "",
+      platformQuery: "",
       selectedSearchColumn: "resiInput", // New data property for selected search column
       selectedDateColumn: "dateResi",
       dateRange: [], // New data property for date range selection
@@ -401,8 +324,8 @@ export default {
     preventTextDot(index) {
       console.log("index is %o", index);
       if (index == "shopee") {
-        let current = this.hargaShopee;
-        this.hargaShopee = current.replace(/[\D\.,]/g, "");
+        let current = this.hargaOnline;
+        this.hargaOnline = current.replace(/[\D\.,]/g, "");
       } else {
         let current = this.hargaToko;
         this.hargaToko = current.replace(/[\D\.,]/g, "");
@@ -450,18 +373,21 @@ export default {
           if (provider === "Unknown Provider" && checkProvider) {
             this.showConfirmationPopup = true;
             this.confirmationPopupMessage = `Provider pengiriman "${this.resiInput}" tidak diketahui. Masih ingin menambah data?`;
-          } else if (this.nomorOrder.length !== 14 && checkProvider) {
-            this.showConfirmationPopup = true;
-            this.confirmationPopupMessage = `Nomor order "${this.nomorOrder}" tidak 6 digit. Masih ingin menambah data?`;
-          } else {
+          }
+          // else if (this.nomorOrder.length !== 14 && checkProvider) {
+          //   this.showConfirmationPopup = true;
+          //   this.confirmationPopupMessage = `Nomor order "${this.nomorOrder}" tidak 6 digit. Masih ingin menambah data?`;
+          // }
+          else {
             this.tableData[entryKey] = {
               nomorOrder: this.nomorOrder,
               date: this.dateInput,
               time: formattedTime,
               provider: this.getProviderFromText(this.resiInput), // Get the provider from the text input
-              hargaShopee: this.hargaShopee ? this.hargaShopee : 0,
+              platform: this.getPlatform(this.resiInput),
+              hargaOnline: this.hargaOnline ? this.hargaOnline : 0,
               hargaToko: this.hargaToko ? this.hargaToko : 0,
-              laba: this.hargaShopee - this.hargaToko,
+              laba: this.hargaOnline - this.hargaToko,
               lunas: this.lunas,
             };
 
@@ -479,7 +405,7 @@ export default {
 
             this.resiInput = "";
             this.nomorOrder = "";
-            this.hargaShopee = null;
+            this.hargaOnline = null;
             this.hargaToko = null;
             this.autoFillDateTime();
           }
@@ -522,7 +448,7 @@ export default {
 
     saveModifiedEntry(modifiedData, oldKey) {
       modifiedData.provider = this.getProviderFromText(modifiedData.resiInput);
-      modifiedData.laba = modifiedData.hargaShopee - modifiedData.hargaToko;
+      modifiedData.laba = modifiedData.hargaOnline - modifiedData.hargaToko;
 
       if (modifiedData.lunas) {
         const now = new Date();
@@ -609,19 +535,41 @@ export default {
 
     // Helper method to extract provider based on the given text input
     getProviderFromText(resiInput) {
-      for (const [provider, regex] of Object.entries(this.providerRegexes)) {
+      for (const [provider, regex] of Object.entries(this.tokopediaRegexes)) {
         if (regex.test(resiInput)) {
           return provider;
         }
       }
+      for (const [provider, regex] of Object.entries(this.shopeeRegexes)) {
+        if (regex.test(resiInput)) {
+          return provider;
+        }
+      }
+
+
       return "Unknown Provider";
+    },
+
+    getPlatform(resiInput) {
+
+      for (const [platform, regex] of Object.entries(this.tokopediaRegexes)) {
+        if (regex.test(resiInput)) {
+          return "Tokopedia";
+        }
+      }
+      for (const [platform, regex] of Object.entries(this.shopeeRegexes)) {
+        if (regex.test(resiInput)) {
+          return "Shopee";
+        }
+      }
+
     },
 
     moveFocusToNextInput(event) {
       const inputs = [
         this.$refs.resiInputRef,
         this.$refs.nomorOrderRef,
-        this.$refs.hargaShopeeRef,
+        this.$refs.hargaOnlineRef,
         this.$refs.hargaTokoRef,
       ];
       const currentInputIndex = inputs.findIndex((input) => input === event.target);
@@ -736,6 +684,8 @@ export default {
           if (dataDate >= startDate && dataDate <= endDate) {
             if (this.selectedSearchColumn == "provider") {
               searchValue = this.providerQuery.toLowerCase().trim();
+            } else if (this.selectedSearchColumn == "platform"){
+              searchValue = this.platformQuery.toLowerCase().trim();
             } else {
               searchValue = this.searchQuery.toLowerCase().trim();
             }
@@ -771,7 +721,10 @@ export default {
           let searchValue = null;
           if (this.selectedSearchColumn == "provider") {
             searchValue = this.providerQuery.toLowerCase().trim();
-          } else {
+          } else if (this.selectedSearchColumn == "platform"){
+            searchValue = this.platformQuery.toLowerCase().trim();
+          }
+          else {
             searchValue = this.searchQuery.toLowerCase().trim();
           }
 

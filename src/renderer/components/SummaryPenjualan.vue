@@ -6,15 +6,21 @@
       </div>
       <div class="depo-pengiriman-chart">
         <h1>Summary Penjualan</h1>
-        <h2>Set range tanggal input resi</h2>
-        <VueDatePicker
-          v-model="date"
-          position="center"
-          @update:model-value="handleDate"
-          range
-          :preset-ranges="presetRanges"
-          :dark="isDarkMode"
-        />
+        <div class="filter-row">
+          <div class="filter-item">
+            <h2>Set platform</h2>
+            <select v-model="platformQuery" @update:model-value="handleDate">
+              <option value="">All</option>
+              <option value="Shopee">Shopee</option>
+              <option value="Tokopedia">Tokopedia</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <h2>Set range tanggal pelunasan</h2>
+            <VueDatePicker v-model="date" position="center" @update:model-value="handleDate" range
+              :preset-ranges="presetRanges" :dark="isDarkMode" />
+          </div>
+        </div>
         <br />
         <canvas class="chart" ref="chart" width="900" height="400"></canvas>
         <div class="sumary-data-container">
@@ -80,12 +86,14 @@ export default {
   },
   mounted() {
     this.filteredData = this.modifiedTableData;
-    this.createBarChart();
+    this.date = [new Date(), new Date()];
+    this.handleDate();
   },
   data() {
     return {
       date: null,
       filteredData: null, // Add a new data property to store the filtered data
+      platformQuery: "",
       presetRanges: [
         { label: "Hari ini", range: [new Date(), new Date()] },
         {
@@ -186,14 +194,23 @@ export default {
       // Filter the data based on the selected date range
       this.filteredData = {};
       for (const key in this.modifiedTableData) {
-        const dataDate = new Date(this.modifiedTableData[key].date);
-        dataDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0
-        if (endDate == null) {
-          endDate = startDate;
+        const data = this.modifiedTableData[key];
+
+        if(data.platform != this.platformQuery && this.platformQuery != "") {
+          continue;
         }
 
-        if (dataDate >= startDate && dataDate <= endDate) {
-          this.filteredData[key] = this.modifiedTableData[key];
+        // Apply date filter
+        if (data.lunasDate) {
+          const dataDate = new Date(data.lunasDate.split(" ")[0]);
+          dataDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0
+          if (endDate == null) {
+            endDate = startDate;
+          }
+
+          if (dataDate >= startDate && dataDate <= endDate) {
+            this.filteredData[key] = data;
+          }
         }
       }
 
